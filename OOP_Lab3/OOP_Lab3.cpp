@@ -18,6 +18,7 @@ public:
         this->node = node;
         this->prev = prev;
         this->head = head;
+        this->next = nullptr;
     }
     ContainerNode(const T* node, const ContainerNode* prev, const ContainerNode* next, const ContainerNode* head){
         this->node = node;
@@ -39,11 +40,12 @@ public:
     Container(T* a){
         head = a;
         tail = a;
-        //node = new ContainerNode<T>(a, head, head);
-    };
+    }
     void push(T a);
-    void pop(/*T a*/);
-    T show(int a);
+    void pop();
+    void pop(T a);
+    T get(int a);
+    int length();
 };
 template <class T>
 void Container<T>::push(T a){
@@ -58,31 +60,59 @@ void Container<T>::push(T a){
     }
 }
 template <class T>
-void Container<T>::pop(/*T a*/){
+void Container<T>::pop(){
     if(tail != nullptr){
         ContainerNode<T>* newNode = tail->prev;
         delete(tail);
         tail = newNode;
     }
+}
+template <class T>
+void Container<T>::pop(T a){
+    if(head != nullptr){
+        ContainerNode<T>* newNode = head;
+        do{
+            if(newNode->node == a){
+                newNode->prev->next = newNode->next;
+                delete(newNode);
+            }
+            newNode = newNode->next;
+        }while (newNode!=nullptr);
+    }
 
 }
 template <class T>
-T Container<T>::show(int a){
+T Container<T>::get(int a){
     ContainerNode<T>* newNode = head;
     for(int i = 0; i < a; i++){
         newNode = newNode->next;
     }
     return newNode->node;
 }
+template <class T>
+int Container<T>::length(){
+    ContainerNode<T>* newNode = head;
+    int i = 0;
+    while(newNode!=nullptr){
+        newNode = newNode->next;
+        i++;
+    }
+    return i;
+}
 
 int main(){
-    Container<double> a;
-    double b = 3;
+    Container<int> a;
+    int b = 3;
     a.push(b);
     a.push(b+1);
-    //a.push(b+2);
-    cout << a.show(1) << "\n";
+    a.push(b+2);
+    for(int i = 0; i < a.length(); i++){
+        cout << a.get(i) << "\n";
+    }
+    cout << "\n";
     a.pop();
     a.push(b + 10);
-    cout << a.show(1) << "\n";
+    for(int i = 0; i < a.length(); i++){
+        cout << a.get(i) << "\n";
+    }
 }
