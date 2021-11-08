@@ -42,7 +42,7 @@ public:
         //node = new ContainerNode<T>(a, head, head);
     };
     void push(T a);
-    void pop(T a);
+    void pop(/*T a*/);
     T show(int a);
 };
 template <class T>
@@ -51,7 +51,6 @@ void Container<T>::push(T a){
         head = new ContainerNode<T>(a);
         head->head = head;
         tail = head;
-        //tail->prev = head;
     } else{
         ContainerNode<T>* newNode = new ContainerNode<T>(a, tail, head);
         tail->next = newNode;
@@ -59,7 +58,12 @@ void Container<T>::push(T a){
     }
 }
 template <class T>
-void Container<T>::pop(T a){
+void Container<T>::pop(/*T a*/){
+    if(tail != nullptr){
+        ContainerNode<T>* newNode = tail->prev;
+        delete(tail);
+        tail = newNode;
+    }
 
 }
 template <class T>
@@ -76,6 +80,9 @@ int main(){
     double b = 3;
     a.push(b);
     a.push(b+1);
-    a.push(b+2);
-    cout << a.show(1);
+    //a.push(b+2);
+    cout << a.show(1) << "\n";
+    a.pop();
+    a.push(b + 10);
+    cout << a.show(1) << "\n";
 }
