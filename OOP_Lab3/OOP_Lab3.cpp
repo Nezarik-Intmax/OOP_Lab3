@@ -20,11 +20,11 @@ public:
         this->head = head;
         this->next = nullptr;
     }
-    ContainerNode(const T* node, const ContainerNode* prev, const ContainerNode* next, const ContainerNode* head){
+    ContainerNode(const T node, ContainerNode* prev, ContainerNode* next, ContainerNode* head){
         this->node = node;
-        this->prev = new ContainerNode(prev);
-        this->next = new ContainerNode(next);
-        this->head = new ContainerNode(head);
+        this->prev = prev;
+        this->next = next;
+        this->head = head;
     }
 };
 template <class T>
@@ -32,23 +32,32 @@ class Container{
 private:
     ContainerNode<T>* head;
     ContainerNode<T>* tail;
+    ContainerNode<T>* current;
 public:
     Container(){
         head = nullptr;
         tail = nullptr;
+        current = nullptr;
     }
     Container(T* a){
         head = a;
         tail = a;
+        current = a;
     }
-    void push(T a);
+    void add(T a);
+    void add(T a, int index);
     void pop();
     void pop(T a);
-    T get(int a);
+    void popIndex(int a);
+    void first();
+    bool eol();
+    void next();
+    ContainerNode<T> getObject();
+    ContainerNode<T> getObject(int a);
     int length();
 };
 template <class T>
-void Container<T>::push(T a){
+void Container<T>::add(T a){
     if(tail == nullptr){
         head = new ContainerNode<T>(a);
         head->head = head;
@@ -57,6 +66,19 @@ void Container<T>::push(T a){
         ContainerNode<T>* newNode = new ContainerNode<T>(a, tail, head);
         tail->next = newNode;
         tail = newNode;
+    }
+}
+template <class T>
+void Container<T>::add(T a, int index){
+    if((head != nullptr)&&(this->length() >= index)){
+        ContainerNode<T>* tempNode = head;
+        for(int i = 0; i < index; i++){
+            tempNode = tempNode->next;
+        }
+        ContainerNode<T>* newNode = new ContainerNode<T>(a, tempNode->prev, tempNode, head);
+        tempNode->prev->next = newNode;
+        tempNode->prev = newNode;
+        tempNode = newNode;
     }
 }
 template <class T>
@@ -79,15 +101,47 @@ void Container<T>::pop(T a){
             newNode = newNode->next;
         }while (newNode!=nullptr);
     }
-
 }
 template <class T>
-T Container<T>::get(int a){
-    ContainerNode<T>* newNode = head;
-    for(int i = 0; i < a; i++){
-        newNode = newNode->next;
+void Container<T>::popIndex(int a){
+    if(head != nullptr){
+        ContainerNode<T>* newNode = head;
+        for(int i = 0; i < a; i++){
+            newNode = newNode->next;
+        }
+        delete(newNode);
     }
-    return newNode->node;
+}
+template <class T>
+void Container<T>::first(){
+    if(head != nullptr)
+        current = head;
+}
+template <class T>
+bool Container<T>::eol(){
+    if(current == tail)
+        return 1;
+    else
+        return 0;
+}
+template <class T>
+void Container<T>::next(){
+    if((current != nullptr)&&(current!= tail))
+        current = current->next;
+}
+template <class T>
+ContainerNode<T> Container<T>::getObject(){
+    return *current;
+}
+template <class T>
+ContainerNode<T> Container<T>::getObject(int a){
+    if(head != nullptr){
+        ContainerNode<T>* newNode = head;
+        for(int i = 0; i < a; i++){
+            newNode = newNode->next;
+        }
+        return *newNode;
+    }
 }
 template <class T>
 int Container<T>::length(){
@@ -102,17 +156,26 @@ int Container<T>::length(){
 
 int main(){
     Container<int> a;
-    int b = 3;
-    a.push(b);
-    a.push(b+1);
-    a.push(b+2);
+    int b = 0;
+    for(int i = 0; i < 10; i++){
+        a.add(i);
+    }
     for(int i = 0; i < a.length(); i++){
-        cout << a.get(i) << "\n";
+        cout << a.getObject(i).node << "\n";
     }
     cout << "\n";
-    a.pop();
-    a.push(b + 10);
+    a.add(1000, 5);
+    a.add(1000, 5);
+    a.add(1000, 15);
     for(int i = 0; i < a.length(); i++){
-        cout << a.get(i) << "\n";
+        cout << a.getObject(i).node << "\n";
     }
+
+    Container<int> storage;
+    for(int i = 0; i < 10; i++)
+        storage.add(4);
+    for(storage.first(); !storage.eol(); storage.next())
+        storage.getObject().node;
+    for(storage.first(); !storage.eol(); storage.next())
+        cout << storage.getObject().node << "\n";
 }
