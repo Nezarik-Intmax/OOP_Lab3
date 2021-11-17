@@ -6,30 +6,25 @@ class ContainerNode{
 public:
     ContainerNode* next;
     ContainerNode* prev;
-    //ContainerNode* head;
     T node;
     ContainerNode(const T node){
         this->node = node;
         this->prev = nullptr;
         this->next = nullptr;
-        //this->head = nullptr;
     }
-    ContainerNode(const T node, ContainerNode* prev/*, ContainerNode* head*/){
+    ContainerNode(const T node, ContainerNode* prev){
         this->node = node;
         this->prev = prev;
-        //this->head = head;
         this->next = nullptr;
     }
-    ContainerNode(const T node, ContainerNode* prev, ContainerNode* next/*, ContainerNode* head*/){
+    ContainerNode(const T node, ContainerNode* prev, ContainerNode* next){
         this->node = node;
         this->prev = prev;
         this->next = next;
-        //this->head = head;
     }
     ~ContainerNode(){
         next = nullptr;
         prev = nullptr;
-        //head = nullptr;
     }
 };
 template <class T>
@@ -65,7 +60,6 @@ template <class T>
 void Container<T>::add(T a){
     if(tail == nullptr){
         head = new ContainerNode<T>(a);
-        //head->head = head;
         tail = head;
     } else{
         ContainerNode<T>* newNode = new ContainerNode<T>(a, tail);
@@ -184,12 +178,12 @@ int main(){
     int randFunc = 0;
     int a = 0;
     int index = 0;
+    unsigned int start_time = clock();
     storage.first();
-    for(int i = 0; i < 150; i++){
+    for(int i = 0; i < 100000; i++){
         randFunc = rand() % 3;
         switch(randFunc){
         case 0:
-
             a = rand() % 25;
             storage.add(a);
             cout << i << ": add | " << a << "\n";
@@ -209,7 +203,9 @@ int main(){
             break;
         }
     }
-    
+    unsigned int end_time = clock();
+    unsigned int search_time = end_time - start_time;
     for(storage.first(); !storage.eol(); storage.next())
         cout << storage.getObject().node << "\n";
+    cout << "\n\n\n" << search_time << "\n\n\n";
 }
