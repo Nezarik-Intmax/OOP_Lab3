@@ -6,25 +6,30 @@ class ContainerNode{
 public:
     ContainerNode* next;
     ContainerNode* prev;
-    ContainerNode* head;
+    //ContainerNode* head;
     T node;
     ContainerNode(const T node){
         this->node = node;
         this->prev = nullptr;
         this->next = nullptr;
-        this->head = nullptr;
+        //this->head = nullptr;
     }
-    ContainerNode(const T node, ContainerNode* prev, ContainerNode* head){
+    ContainerNode(const T node, ContainerNode* prev/*, ContainerNode* head*/){
         this->node = node;
         this->prev = prev;
-        this->head = head;
+        //this->head = head;
         this->next = nullptr;
     }
-    ContainerNode(const T node, ContainerNode* prev, ContainerNode* next, ContainerNode* head){
+    ContainerNode(const T node, ContainerNode* prev, ContainerNode* next/*, ContainerNode* head*/){
         this->node = node;
         this->prev = prev;
         this->next = next;
-        this->head = head;
+        //this->head = head;
+    }
+    ~ContainerNode(){
+        next = nullptr;
+        prev = nullptr;
+        //head = nullptr;
     }
 };
 template <class T>
@@ -60,25 +65,31 @@ template <class T>
 void Container<T>::add(T a){
     if(tail == nullptr){
         head = new ContainerNode<T>(a);
-        head->head = head;
+        //head->head = head;
         tail = head;
     } else{
-        ContainerNode<T>* newNode = new ContainerNode<T>(a, tail, head);
+        ContainerNode<T>* newNode = new ContainerNode<T>(a, tail);
         tail->next = newNode;
         tail = newNode;
     }
 }
 template <class T>
 void Container<T>::add(T a, int index){
-    if((head != nullptr)&&(this->length() >= index)){
+    if((this->length() == 0) || (this->length() == index)){
+        this->add(a);
+    } else if(index == 0){
+        ContainerNode<T>* newNode = new ContainerNode<T>(a, nullptr, head);
+        head->prev = newNode;
+        head = newNode;
+
+    } else if((head != nullptr) && (this->length() > index)){
         ContainerNode<T>* tempNode = head;
         for(int i = 0; i < index; i++){
             tempNode = tempNode->next;
         }
-        ContainerNode<T>* newNode = new ContainerNode<T>(a, tempNode->prev, tempNode, head);
+        ContainerNode<T>* newNode = new ContainerNode<T>(a, tempNode->prev, tempNode);
         tempNode->prev->next = newNode;
         tempNode->prev = newNode;
-        tempNode = newNode;
     }
 }
 template <class T>
@@ -87,6 +98,7 @@ void Container<T>::pop(){
         ContainerNode<T>* newNode = tail->prev;
         delete(tail);
         tail = newNode;
+        tail->next = nullptr;
     }
 }
 template <class T>
@@ -104,10 +116,20 @@ void Container<T>::pop(T a){
 }
 template <class T>
 void Container<T>::popIndex(int a){
-    if(head != nullptr){
+    if((head != nullptr)&&(this->length() > a)){
         ContainerNode<T>* newNode = head;
         for(int i = 0; i < a; i++){
             newNode = newNode->next;
+        }
+        if((newNode->prev != nullptr)&&(newNode->next != nullptr)){
+            newNode->prev->next = newNode->next;
+            newNode->next->prev = newNode->prev;
+        }else if(newNode->prev != nullptr){
+            newNode->prev->next = nullptr;
+            tail = newNode->prev;
+        }else if(newNode->next != nullptr){
+            newNode->next->prev = nullptr;
+            head = newNode->next;
         }
         delete(newNode);
     }
@@ -119,19 +141,22 @@ void Container<T>::first(){
 }
 template <class T>
 bool Container<T>::eol(){
-    if(current == tail)
+    if(current == nullptr)
         return 1;
     else
         return 0;
 }
 template <class T>
 void Container<T>::next(){
-    if((current != nullptr)&&(current!= tail))
+    if(current != nullptr)
         current = current->next;
 }
 template <class T>
 ContainerNode<T> Container<T>::getObject(){
-    return *current;
+    if(current != nullptr)
+        return *current;
+    else if(head != nullptr)
+        return *head;
 }
 template <class T>
 ContainerNode<T> Container<T>::getObject(int a){
@@ -155,27 +180,36 @@ int Container<T>::length(){
 }
 
 int main(){
-    Container<int> a;
-    int b = 0;
-    for(int i = 0; i < 10; i++){
-        a.add(i);
-    }
-    for(int i = 0; i < a.length(); i++){
-        cout << a.getObject(i).node << "\n";
-    }
-    cout << "\n";
-    a.add(1000, 5);
-    a.add(1000, 5);
-    a.add(1000, 15);
-    for(int i = 0; i < a.length(); i++){
-        cout << a.getObject(i).node << "\n";
-    }
-
     Container<int> storage;
-    for(int i = 0; i < 10; i++)
-        storage.add(4);
-    for(storage.first(); !storage.eol(); storage.next())
-        storage.getObject().node;
+    int randFunc = 0;
+    int a = 0;
+    int index = 0;
+    storage.first();
+    for(int i = 0; i < 150; i++){
+        randFunc = rand() % 3;
+        switch(randFunc){
+        case 0:
+
+            a = rand() % 25;
+            storage.add(a);
+            cout << i << ": add | " << a << "\n";
+            break;
+        case 1:
+            a = rand() % 25;
+            index = rand() % (storage.length() + 1);
+            storage.add(a, index);
+            cout << i << ": add index | " << a << " " << index << "\n";
+            break;
+        case 2:
+            index = rand() % (storage.length() + 1);
+            storage.popIndex(index);
+            cout << i << ": popIndex | " << index << "\n";
+            break;
+        default:
+            break;
+        }
+    }
+    
     for(storage.first(); !storage.eol(); storage.next())
         cout << storage.getObject().node << "\n";
 }
